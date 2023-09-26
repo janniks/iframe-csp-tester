@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>main</title>
+  </head>
+  <body style="font-family: monospace; background-color: lightpink">
+    <div>untrusted-02.html</div>
+
+    <div>
+      <button onclick="window.postMessage('test')">Post Message</button>
+      <button onclick="makeFetch()">Network Request (fetch)</button>
+    </div>
+
+    <div id="content"></div>
+
+    <script>
+      function append(message) {
+        const content = document.getElementById("content");
+        const p = document.createElement("p");
+        p.innerHTML = message;
+        content.appendChild(p);
+      }
+
+      window.addEventListener("message", (event) => {
+        append(JSON.stringify(event) + "⚠️");
+      });
+
+      // fetch
+      function makeFetch() {
+        fetch("https://ron-swanson-quotes.herokuapp.com/v2/quotes")
+          .then((response) => response.json())
+          .then((data) => append(`fetch response: ${data} ⚠️`))
+          .catch((error) => append(`fetch error: ${error}`));
+      }
+
+      append(`my origin: ${window.location.origin}`);
+    </script>
+    <noscript>I can't script</noscript>
+  </body>
+</html>

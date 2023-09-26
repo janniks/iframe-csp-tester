@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>main</title>
+  </head>
+  <body style="font-family: monospace; background-color: lightcoral">
+    <div>untrusted-01.html</div>
+
+    <!-- relative access -->
+    <iframe src="/untrusted-02" width="256" height="256"></iframe>
+
+    <div>
+      <button onclick="window.top.postMessage('test', '*')">Top Message</button>
+      <button onclick="window.postMessage('test', '*')">Post Message</button>
+      <button onclick="makeRequest()">Network Request (XMLHTTP)</button>
+      <button onclick="makeFetch()">Network Request (fetch)</button>
+      <button onclick="sendEvent('test')">Dispatch Event</button>
+      <button onclick="window.location.href = 'https://example.com'">
+        Navigate
+      </button>
+    </div>
+
+    <div id="content"></div>
+
+    <script>
+      function append(message) {
+        const content = document.getElementById("content");
+        const p = document.createElement("p");
+        p.innerHTML = message;
+        content.appendChild(p);
+      }
+
+      // listen
+      window.addEventListener("message", (event) => {
+        append(JSON.stringify(event) + "⚠️");
+      });
+
+      document.addEventListener("awesome", (event) => {
+        append(JSON.stringify(event) + "⚠️");
+      });
+
+      function sendEvent(message) {
+        window.top.dispatchEvent(
+          new CustomEvent("awesome", {
+            bubbles: true,
+            detail: { text: () => message },
+          })
+        );
+      }
+
+      // oldschool XMLHttpRequest
+      function makeRequest() {
+        httpRequest = new XMLHttpRequest();
+
+        if (!httpRequest) {
+          append("Cannot create an XMLHTTP instance");
+          return false;
+        }
+        httpRequest.onreadystatechange = function () {
+          if (httpRequest.readyState === XMLHttpRequest.DONE) {
+            httpRequest.status === 200
+              ? append(`request response: ${httpRequest.responseText}`)
+              : append(`request error: ${httpRequest.status}`);
+          } else {
+            append("loading...");
+          }
+        };
+        httpRequest.open(
+          "GET",
+          "https://ron-swanson-quotes.herokuapp.com/v2/quotes"
+        );
+        httpRequest.send();
+      }
+
+      // fetch
+      function makeFetch() {
+        fetch("https://ron-swanson-quotes.herokuapp.com/v2/quotes")
+          .then((response) => response.json())
+          .then((data) => append(`fetch response: ${data} ⚠️`))
+          .catch((error) => append(`fetch error: ${error}`));
+      }
+
+      append(`my origin: ${window.location.origin}`);
+    </script>
+    <noscript>I can't script</noscript>
+  </body>
+</html>

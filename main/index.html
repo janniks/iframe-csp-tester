@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>main</title>
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="frame-src http://localhost:3001;"
+    />
+  </head>
+  <body style="font-family: monospace; background-color: lightgreen">
+    <div>main/index.html</div>
+    <iframe
+      src="http://localhost:3001/untrusted-01"
+      width="320"
+      height="512"
+      sandbox="allow-scripts"
+      referrerpolicy="no-referrer"
+      credentialless
+    ></iframe>
+
+    <div>
+      <button onclick="append('test')">Append</button>
+      <button onclick="frameMessage('test')">Frame Post Message</button>
+      <button onclick="frameMessage('test', window.location.origin)">
+        Frame Post Message (same origin)
+      </button>
+      <button onclick="window.postMessage('test', '*')">Post Message</button>
+      <button onclick="window.postMessage('test', window.location.origin)">
+        Post Message (same origin)
+      </button>
+      <button onclick="sendEvent('test')">Dispatch Event</button>
+    </div>
+
+    <div id="content"></div>
+
+    <script>
+      function append(message) {
+        const content = document.getElementById("content");
+        const p = document.createElement("p");
+        p.innerHTML = message;
+        content.appendChild(p);
+      }
+
+      function frameMessage(message, origin = "*") {
+        window.frames[0].postMessage(message, origin);
+      }
+
+      function sendEvent(message) {
+        document.dispatchEvent(
+          new CustomEvent("awesome", {
+            bubbles: true,
+            detail: { text: () => message },
+          })
+        );
+      }
+
+      window.addEventListener("message", (event) => {
+        append(JSON.stringify(event));
+      });
+
+      document.addEventListener("awesome", (event) => {
+        append(JSON.stringify(event));
+      });
+
+      append(`my origin: ${window.location.origin}`);
+    </script>
+    <noscript>I can't script</noscript>
+  </body>
+</html>
