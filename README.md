@@ -1,5 +1,7 @@
 # iframe-tester
 
+`npm install`
+
 `npx serve main` (Main Site/Extension) http://localhost:3000
 
 `npx nodemon server.js` (API/Server) http://localhost:3001
