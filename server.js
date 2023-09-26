@@ -1,10 +1,13 @@
 const express = require("express");
+const cors = require("cors");
+
 const app = express();
 const port = 3001;
 
 app.engine(".html", require("ejs").__express);
 app.set("views", __dirname);
 app.set("view engine", "html");
+app.use(cors());
 
 app.get("/:id", (req, res) => {
   // set headers here
